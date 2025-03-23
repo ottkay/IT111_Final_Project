@@ -1,54 +1,69 @@
-#import random library to enable random choice selection for the computer
+import tkinter as tk
+from tkinter import Label, Button
+from PIL import Image, ImageTk
 import random
 
-#function to create user choices rock, paper or scissors with input validation
-def get_user_choice():
-    choices = ['rock', 'paper', 'scissors']
-    while True:
-        user_input = input("Enter your choice (rock, paper, scissors): ").lower()
-        if user_input in choices:
-            return user_input
-        print("Invalid choice. Please choose rock, paper, or scissors.")
-
-#function to randomly generate the computer's choice
-def get_computer_choice():
-    return random.choice(['rock', 'paper', 'scissors'])
-
-#function to determine winner
-def determine_winner(player1, player2):
-    if player1 == player2:
-        return "It's a tie!"
-    elif (
-        (player1 == 'rock' and player2 == 'scissors') or
-        (player1 == 'scissors' and player2 == 'paper') or
-        (player1 == 'paper' and player2 == 'rock')
-    ):
-        return "You win!"
+# ----------------------- Game Logic -----------------------
+def determine_winner(player, computer):
+    if player == computer:
+        return "It's a Tie!"
+    elif (player == "rock" and computer == "scissors") or \
+         (player == "scissors" and computer == "paper") or \
+         (player == "paper" and computer == "rock"):
+        return "You Win!"
     else:
-        return "Computer wins!"
-#function that runs the game loops and displays results
-def play_game():
-    print("🪨 Welcome to Rock, Paper, Scissors! ✂️")
+        return "You Lose!"
 
-    #Game loop
-    while True:
-        user_choice = get_user_choice()
-        computer_choice = get_computer_choice()
-        
-        #show both choices
-        print(f"\nYou chose: {user_choice}")
-        print(f"Computer chose: {computer_choice}")
-        
-        #display the result
-        result = determine_winner(user_choice, computer_choice)
-        print(f"Result: {result}\n")
+# ----------------------- GUI Setup -----------------------
+root = tk.Tk()
+root.title("Rock Paper Scissors")
+root.geometry("800x500")
+root.configure(bg='white')
 
-        #ask if the user wants to play another round
-        again = input("Play again? (y/n): ").lower()
-        if again != 'y':
-            print("Thanks for playing! Goodbye!")
-            break
+# Load images
+rock_img = ImageTk.PhotoImage(Image.open("images/rock.png").resize((150, 150)))
+print("rock.png loaded")
+paper_img = ImageTk.PhotoImage(Image.open("images/paper.png").resize((150, 150)))
+print("paper.png loaded")
+scissors_img = ImageTk.PhotoImage(Image.open("images/scissors.png").resize((150, 150)))
+print("scissors.png loaded")
 
-#only run the game if this script is executed directly
-if __name__ == "__main__":
-    play_game()
+# Image map for cleaner code
+image_map = {
+    "rock": rock_img,
+    "paper": paper_img,
+    "scissors": scissors_img
+}
+
+# Layout configuration
+for i in range(4):
+    root.grid_rowconfigure(i, weight=1)
+for i in range(3):
+    root.grid_columnconfigure(i, weight=1)
+
+# Labels
+Label(root, text="Your Choice", font=("Helvetica", 18, "bold"), bg='white').grid(row=0, column=1, pady=10)
+player_img = Label(root, image=rock_img, bg='white')
+player_img.grid(row=1, column=0, padx=30)
+computer_img = Label(root, image=paper_img, bg='white')
+computer_img.grid(row=1, column=2, padx=30)
+result_label = Label(root, text="Computer: ", font=("Helvetica", 18), bg='white', fg='blue')
+result_label.grid(row=2, column=1, pady=20)
+
+# ----------------------- Game Function -----------------------
+def play(choice):
+    computer = random.choice(["rock", "paper", "scissors"])
+    
+    player_img.config(image=image_map[choice])
+    computer_img.config(image=image_map[computer])
+
+    result = determine_winner(choice, computer)
+    result_label.config(text=f"Computer: {computer.capitalize()} | {result}")
+
+# Buttons
+Button(root, text="Rock", command=lambda: play("rock"), width=12, height=2).grid(row=3, column=0, pady=20, padx=10)
+Button(root, text="Paper", command=lambda: play("paper"), width=12, height=2).grid(row=3, column=1, pady=20, padx=10)
+Button(root, text="Scissors", command=lambda: play("scissors"), width=12, height=2).grid(row=3, column=2, pady=20, padx=10)
+
+# Start the app
+root.mainloop()
