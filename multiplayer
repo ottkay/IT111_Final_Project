@@ -1,0 +1,95 @@
+import tkinter as tk
+from tkinter import Label, Button
+from PIL import Image, ImageTk
+import random
+
+# ----------------------- Game Logic -----------------------
+def determine_winner(player1, player2):
+    if player1 == player2:
+        return "It's a Tie!"
+    elif (player1 == "rock" and player2 == "scissors") or \
+         (player1 == "scissors" and player2 == "paper") or \
+         (player1 == "paper" and player2 == "rock"):
+        return "Player 1 Wins!"
+    else:
+        return "Player 2 Wins!"
+
+# ----------------------- GUI Setup -----------------------
+root = tk.Tk()
+root.title("Rock Paper Scissors")
+root.geometry("800x500")
+root.configure(bg='white')
+
+# Load images
+rock_img = ImageTk.PhotoImage(Image.open("images/rock.png").resize((150, 150)))
+paper_img = ImageTk.PhotoImage(Image.open("images/paper.png").resize((150, 150)))
+scissors_img = ImageTk.PhotoImage(Image.open("images/scissors.png").resize((150, 150)))
+
+# Image map for cleaner code
+image_map = {
+    "rock": rock_img,
+    "paper": paper_img,
+    "scissors": scissors_img
+}
+
+# Layout configuration
+for i in range(4):
+    root.grid_rowconfigure(i, weight=1)
+for i in range(3):
+    root.grid_columnconfigure(i, weight=1)
+
+# Labels
+Label(root, text="Your Choice", font=("Helvetica", 18, "bold"), bg='white').grid(row=0, column=1, pady=10)
+player1_img = Label(root, image=rock_img, bg='white')
+player1_img.grid(row=1, column=0, padx=30)
+player2_img = Label(root, image=paper_img, bg='white')
+player2_img.grid(row=1, column=2, padx=30)
+result_label = Label(root, text="Result: ", font=("Helvetica", 18), bg='white', fg='blue')
+result_label.grid(row=2, column=1, pady=20)
+
+# ----------------------- Game Functions -----------------------
+def play_single(choice):
+    computer = random.choice(["rock", "paper", "scissors"])
+
+    player1_img.config(image=image_map[choice])
+    player2_img.config(image=image_map[computer])
+
+    result = determine_winner(choice, computer).replace("Player 1", "You").replace("Player 2", "Computer")
+    result_label.config(text=f"Computer: {computer.capitalize()} | {result}")
+
+def play_multiplayer(player1_choice):
+    def player2_choice_handler(player2_choice):
+        player1_img.config(image=image_map[player1_choice])
+        player2_img.config(image=image_map[player2_choice])
+
+        result = determine_winner(player1_choice, player2_choice)
+        result_label.config(text=f"Player 2: {player2_choice.capitalize()} | {result}")
+
+    # Prompt Player 2 after Player 1 chooses
+    Button(root, text="Rock", command=lambda: player2_choice_handler("rock"), width=12, height=2).grid(row=3, column=0, pady=20, padx=10)
+    Button(root, text="Paper", command=lambda: player2_choice_handler("paper"), width=12, height=2).grid(row=3, column=1, pady=20, padx=10)
+    Button(root, text="Scissors", command=lambda: player2_choice_handler("scissors"), width=12, height=2).grid(row=3, column=2, pady=20, padx=10)
+
+def choose_mode():
+    def start_single_player():
+        # Buttons for single-player
+        Button(root, text="Rock", command=lambda: play_single("rock"), width=12, height=2).grid(row=3, column=0, pady=20, padx=10)
+        Button(root, text="Paper", command=lambda: play_single("paper"), width=12, height=2).grid(row=3, column=1, pady=20, padx=10)
+        Button(root, text="Scissors", command=lambda: play_single("scissors"), width=12, height=2).grid(row=3, column=2, pady=20, padx=10)
+
+    def start_multiplayer():
+        # Buttons for multiplayer
+        Button(root, text="Rock", command=lambda: play_multiplayer("rock"), width=12, height=2).grid(row=3, column=0, pady=20, padx=10)
+        Button(root, text="Paper", command=lambda: play_multiplayer("paper"), width=12, height=2).grid(row=3, column=1, pady=20, padx=10)
+        Button(root, text="Scissors", command=lambda: play_multiplayer("scissors"), width=12, height=2).grid(row=3, column=2, pady=20, padx=10)
+
+    # Mode selection buttons
+    Button(root, text="Single Player", command=start_single_player, width=16, height=3).grid(row=3, column=0, pady=20, padx=10)
+    Button(root, text="Multiplayer", command=start_multiplayer, width=16, height=3).grid(row=3, column=2, pady=20, padx=10)
+
+# Initial mode selection
+choose_mode()
+
+# Start the app
+root.mainloop()
+
